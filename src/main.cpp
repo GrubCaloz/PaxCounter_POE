@@ -1,6 +1,6 @@
 #include <Arduino.h>
 #include <libpax_api.h>
-
+#include "Adafruit_NeoPixel.h"
 
 struct count_payload_t count_from_libpax;
 
@@ -14,7 +14,8 @@ void init_Libpax() {
   libpax_default_config(&configuration);
   configuration.blecounter = 1;
   configuration.blescantime = 0; // infinit
-  configuration.wificounter = 1; 
+  configuration.wifi_my_country = 1; // 1 = CH
+  configuration.wificounter = 0; 
   configuration.wifi_channel_map = WIFI_CHANNEL_ALL;
   configuration.wifi_channel_switch_interval = 50;
   configuration.wifi_rssi_threshold = -80;
@@ -26,12 +27,31 @@ void init_Libpax() {
   libpax_counter_start();
 }
 
+#define PIN 21           // Pin connected to NeoPixel
 
+Adafruit_NeoPixel strip = Adafruit_NeoPixel(1, PIN, NEO_GRB + NEO_KHZ800);
 
 void setup() {
-  init_Libpax();
+  
+  strip.begin();
+  strip.setBrightness(10);
+  strip.setPixelColor(0, 255,0,0);
+  strip.show();
+
   Serial.begin();
+
+  init_Libpax();
+  delay(500);
+
+
 }
 
+
 void loop() {
+strip.setPixelColor(0, 0,255,0);
+strip.show();
+
+Serial.println(count_from_libpax.pax);
+Serial.println(count_from_libpax.ble_count);
+Serial.println(count_from_libpax.wifi_count);
 }
