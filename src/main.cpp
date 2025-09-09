@@ -1,18 +1,37 @@
 #include <Arduino.h>
+#include <libpax_api.h>
 
-// put function declarations here:
-int myFunction(int, int);
+
+struct count_payload_t count_from_libpax;
+
+
+void process_count(void) {
+  printf("pax: %lu; %lu; %lu;\n", count_from_libpax.pax, count_from_libpax.wifi_count, count_from_libpax.ble_count);
+}
+
+void init_Libpax() {
+  struct libpax_config_t configuration; 
+  libpax_default_config(&configuration);
+  configuration.blecounter = 1;
+  configuration.blescantime = 0; // infinit
+  configuration.wificounter = 1; 
+  configuration.wifi_channel_map = WIFI_CHANNEL_ALL;
+  configuration.wifi_channel_switch_interval = 50;
+  configuration.wifi_rssi_threshold = -80;
+  configuration.ble_rssi_threshold = -80;
+  libpax_update_config(&configuration);
+
+  // internal processing initialization
+  libpax_counter_init(process_count, &count_from_libpax, 10, 1); 
+  libpax_counter_start();
+}
+
+
 
 void setup() {
-  // put your setup code here, to run once:
-  int result = myFunction(2, 3);
+  init_Libpax();
+  Serial.begin();
 }
 
 void loop() {
-  // put your main code here, to run repeatedly:
-}
-
-// put function definitions here:
-int myFunction(int x, int y) {
-  return x + y;
 }
